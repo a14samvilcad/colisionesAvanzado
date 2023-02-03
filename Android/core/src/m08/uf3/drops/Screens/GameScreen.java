@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -37,6 +38,8 @@ public class GameScreen implements Screen {
     private OrthographicCamera camera;
     private OrthogonalTiledMapRenderer tmr;
     private TiledMap map;
+    private TiledMapTileLayer mapLayer;
+    private MapProperties propiedadesMap;
 
     private int tileWidth, tileHeight,
             mapWidthInTiles, mapHeightInTiles,
@@ -45,24 +48,29 @@ public class GameScreen implements Screen {
     public GameScreen(Batch prevBatch, Viewport prevViewport, Drops game) {
 
         map = AssetManager.map;
-
-        MapProperties properties = map.getProperties();
-        tileWidth         = properties.get("tilewidth", Integer.class);
-        tileHeight        = properties.get("tileheight", Integer.class);
-        mapWidthInTiles   = properties.get("width", Integer.class);
-        mapHeightInTiles  = properties.get("height", Integer.class);
+        propiedadesMap = map.getProperties();
+        tileWidth         = propiedadesMap.get("tilewidth", Integer.class);
+        tileHeight        = propiedadesMap.get("tileheight", Integer.class);
+        mapWidthInTiles   = propiedadesMap.get("width", Integer.class);
+        mapHeightInTiles  = propiedadesMap.get("height", Integer.class);
         mapWidthInPixels  = mapWidthInTiles  * tileWidth;
         mapHeightInPixels = mapHeightInTiles * tileHeight;
+        mapLayer = (TiledMapTileLayer) map.getLayers().get("Suelo");
+
 
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         prevViewport.setCamera(camera);
 
         tmr = new OrthogonalTiledMapRenderer(map);
 
+        // Creem la nau i la resta d'objectes
+        bucket = new Player(368, 20, 64, 64, mapLayer, propiedadesMap);
+        //bucket.setPropertiesMapa(propiedadesMap);
+        //bucket.setMapTileLayer(mapLayer);
+
         this.game = game;
         Settings.LIVES = 3;
         crearLabels();
-
 
         // Creem el ShapeRenderer
         shapeRenderer = new ShapeRenderer();
@@ -72,8 +80,6 @@ public class GameScreen implements Screen {
 
         batch = stage.getBatch();
 
-        // Creem la nau i la resta d'objectes
-        bucket = new Player(368, 20, 64, 64);
 
         // Afegim els actors a l'stage
         stage.addActor(bucket);
